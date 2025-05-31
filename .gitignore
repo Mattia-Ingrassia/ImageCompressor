@@ -164,3 +164,4 @@ cython_debug/
 # custom paths
 note.txt
 legacy
+output_images/
