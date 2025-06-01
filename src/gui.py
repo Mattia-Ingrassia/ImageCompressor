@@ -1,11 +1,12 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog as fd
-import tkinter.font as tkFont
 import os
 
 from compression_manager import compression
 from PIL import Image, ImageTk
+
+from custom_exceptions import InvalidBlockSizeError, InvalidFrequenciesNumberError
 
 
 
@@ -252,13 +253,14 @@ class GUI:
             f = int(f_value)
             d = int(d_value)
             
+            self.label_errors.config(text = f"Starting compression with F={f}, d={d}, file={self.selected_file} ...", foreground=self.COLORS['text_primary'])            
+            self.label_errors.update()
+            
             # Validate the F and d values
             if d < 0 or d > 2*f-2:
                 self.label_errors.config(text=f"Invalid d value. Must be between 0 and {2*f-2}.", foreground=self.COLORS['error'])
                 return
                 
-            self.label_errors.config(text = f"Starting compression with F={f}, d={d}, file={self.selected_file} ...", foreground=self.COLORS['text_primary'])            
-
             output_path = compression(self.selected_file, f, d)
 
             # Check if the image exists and load it 
@@ -280,7 +282,13 @@ class GUI:
             self.label_original_image.configure(image=self.original_photo_tk)
             self.label_compressed_image.configure(image=self.compressed_photo_tk)    
             
-            self.label_errors.config(text = "The Image has been compressed !", foreground=self.COLORS['text_primary'])            
+            self.label_errors.config(text = "The Image has been compressed !", foreground=self.COLORS['text_primary'])
+
+        except InvalidBlockSizeError as e:
+            self.label_errors.config(text=e.msg, foreground=self.COLORS['error'])
+        
+        except InvalidFrequenciesNumberError as e:
+            self.label_errors.config(text=e.msg, foreground=self.COLORS['error'])
 
         except ValueError:
             self.label_errors.config(text="Invalid values. F and d must be integers.", foreground=self.COLORS['error'])

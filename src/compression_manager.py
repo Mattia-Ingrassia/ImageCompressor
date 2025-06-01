@@ -2,6 +2,7 @@ import warnings
 import imageio.v3 as iio
 import numpy as np
 import os
+from custom_exceptions import InvalidBlockSizeError, InvalidFrequenciesNumberError
 
 from dct import scipy_dct2_fft, scipy_idct2_fft
 
@@ -11,7 +12,9 @@ def compression(image_path, block_size, frequences_cut):
     # Check on the frequences_cut value
     if(frequences_cut < 0) or  (frequences_cut > block_size*2 - 2):
         warnings.warn("Error: frequences_cut value is not valid")
-    
+        raise InvalidFrequenciesNumberError
+
+
     # Open the image in a grayscale format
     image = iio.imread(image_path, pilmode='L')
 
@@ -21,6 +24,11 @@ def compression(image_path, block_size, frequences_cut):
     blocks_per_row = rows // block_size
     blocks_per_column = columns // block_size
     
+    if(blocks_per_column <= 0 or blocks_per_row <= 0):
+        warnings.warn("Error: image block ")
+        raise InvalidBlockSizeError
+
+
     # Cut the remaining elements that are not part of a block
     image = image[:blocks_per_row * block_size, :blocks_per_column * block_size]
 
@@ -28,7 +36,8 @@ def compression(image_path, block_size, frequences_cut):
     # Initially, it reshapes the image into (blocks_per_row, block_size, remaining_blocks, block_size)
     # Then, it swaps axes to group block dimensions together
     # Lastly, it reshapes the image into (total_blocks, block_size, block_size)
-    # for example, having a 160x160 image with a block size of 8, it will result in a three dimenisional vector split into (400 blocks, 8, 8)
+    # for example, having a 160x160 image with a block size of 8, it will result in a three dimenisional 
+    # vector split into (400 blocks, 8, 8)
     image = image.reshape(blocks_per_row, block_size, -1, block_size).swapaxes(1, 2).reshape(-1, block_size, block_size)
 
     image_new = []
@@ -57,7 +66,6 @@ def compression(image_path, block_size, frequences_cut):
 
     # Rebuild the compressed image by reshaping the 3d vector:
     # Initially, it reshapes blocks back into grid structure (blocks_per_row, blocks_per_column, block_size, block_size)  
-    # blocks_rearranged = blocks_grid.transpose(0, 2, 1, 3)
     # Then, it rearranges dimensions to group pixels that belong to the same image row
     # From (blocks_per_row, blocks_per_column, block_size, block_size) To   (blocks_per_row, block_size, blocks_per_column, block_size)
     # Finally, it reshapes to final 2D image by combining block dimensions: (height, width) where height = blocks_per_row * block_size
