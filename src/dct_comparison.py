@@ -64,6 +64,6 @@ if __name__ == "__main__":
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.show()
     plt.savefig("DCT_comparison.png")
+    plt.show()
 
