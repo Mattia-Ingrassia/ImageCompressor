@@ -8,8 +8,6 @@ from PIL import Image, ImageTk
 
 from custom_exceptions import InvalidBlockSizeError, InvalidFrequenciesNumberError
 
-
-
 class GUI:
     """GUI for image compression."""
 
@@ -39,7 +37,7 @@ class GUI:
         self.root.resizable(True, True)
         self.root.configure(bg=self.COLORS['primary_bg'])
 
-        # Set the window size to 75% of the scre
+        # Set the window size to 75% of the screen
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         window_width = int(screen_width * 0.75)
